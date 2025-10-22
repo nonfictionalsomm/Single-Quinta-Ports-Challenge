@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quinta-Producer Challenge</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Inter font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom styles for button states */
+        .btn-option.correct {
+            background-color: #16a34a; /* green-600 */
+            border-color: #16a34a;
+            color: white;
+        }
+        .btn-option.incorrect {
+            background-color: #dc2626; /* red-600 */
+            border-color: #dc2626;
+            color: white;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        /* Hide views by default */
+        .view {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 flex items-center justify-center min-h-screen p-4">
+
+    <div class="max-w-3xl w-full bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8">
+
+        <!-- ===== Main Menu View ===== -->
+        <div id="view-menu" class="view" style="display: block;">
+            <h1 class="text-3xl font-bold text-center text-white mb-6">Quinta-Producer Challenge</h1>
+            
+            <div class="bg-gray-700 p-6 rounded-lg mb-8">
+                <h2 class="text-xl font-semibold mb-3 text-blue-300">How to Play</h2>
+                <p class="mb-4">Test your knowledge of Single Quinta Vintage Ports!</p>
+                <ul class="list-disc list-inside space-y-2">
+                    <li>You will be shown a <span class="font-semibold text-white">Quinta</span> and must match it to the correct <span class="font-semibold text-white">Producer</span>.</li>
+                    <li>The game consists of <span class="font-semibold text-white">10 rounds</span>.</li>
+                    <li>You get unlimited guesses per round.</li>
+                </ul>
+            </div>
+
+            <div class="bg-gray-700 p-6 rounded-lg mb-8">
+                <h2 class="text-xl font-semibold mb-3 text-yellow-300">Scoring</h2>
+                <ul class="list-disc list-inside space-y-2">
+                    <li><span class="font-semibold text-green-400">+2 points</span> for a correct match on the first try.</li>
+                    <li><span class="font-semibold text-green-500">+1 point</span> for a correct match on any subsequent try.</li>
+                    <li><span class="font-semibold text-red-400">-1 point</span> for each incorrect guess.</li>
+                </ul>
+                <p class="mt-4">Your final score will be out of a maximum of <span class="font-semibold text-white">20 points</span>.</p>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-4">
+                <button id="start-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-all text-lg shadow-lg">
+                    Start Challenge
+                </button>
+                <button id="study-btn" class="w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-6 rounded-lg transition-all text-lg shadow-lg">
+                    Study Database
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== Database View ===== -->
+        <div id="view-database" class="view">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-white">Quinta Database</h1>
+                <button class="back-menu-btn bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded-lg transition-all shadow">
+                    &larr; Back
+                </button>
+            </div>
+            <div id="database-list" class="max-h-96 overflow-y-auto space-y-4 pr-2">
+                <!-- Database content will be injected here -->
+            </div>
+        </div>
+
+        <!-- ===== Game View ===== -->
+        <div id="view-game" class="view">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <span class="text-lg font-semibold text-blue-300">Score: <span id="score-display">0</span></span>
+                </div>
+                <div>
+                    <span class="text-lg font-semibold text-gray-400">Question: <span id="question-counter">1 / 10</span></span>
+                </div>
+            </div>
+
+            <div class="text-center bg-gray-700 p-8 rounded-lg mb-8 shadow-inner">
+                <p class="text-lg text-gray-300 mb-2">Which producer makes...</p>
+                <h2 id="quinta-prompt" class="text-3xl font-bold text-white">Quinta Name Here</h2>
+            </div>
+
+            <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Option buttons will be injected here -->
+            </div>
+            
+            <div id="feedback-message" class="text-center mt-6 h-6 text-lg font-semibold">
+                <!-- Feedback like "Correct!" or "Try again!" -->
+            </div>
+        </div>
+
+        <!-- ===== Score View ===== -->
+        <div id="view-score" class="view text-center">
+            <h1 class="text-4xl font-bold text-white mb-4">Challenge Complete!</h1>
+            
+            <div class="bg-gray-700 p-8 rounded-lg mb-8 shadow-inner">
+                <p class="text-xl text-gray-300 mb-2">Your Final Score</p>
+                <h2 id="final-score-display" class="text-6xl font-bold text-white mb-4">18 / 20</h2>
+                <p id="final-feedback-message" class="text-2xl font-semibold text-yellow-300">Excellent work!</p>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-4">
+                <button id="play-again-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-all text-lg shadow-lg">
+                    Play Again
+                </button>
+                <button class="back-menu-btn w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-6 rounded-lg transition-all text-lg shadow-lg">
+                    Main Menu
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- DATA ---
+        // Using the cleaned-up data from your first text prompt for clarity
+        const DB_DATA = [
+            { "Producer": "BURMESTER, est. 1730", "Quinta": "Quinta do Nova de Nossa Senhora do Carmo", "Notes": "(Sogevinus)\n(Cima Corgo)\nPurchased by Burmester in 1991 from Royal Oporto/Real Companhia Velha. SQVP was made as a separate label.\nAlso produces Quinta do Arnozelo (see Calem), which is a quinta under their parent company, Sogevinus." },
+            { "Producer": "CALEM, est 1859", "Quinta": "Quinta da Foz", "Notes": "(Sogevinus)\n(Cima Corgo)\nOwned by Calem since 1885. SQVP first produced from the quinta in 1982." },
+            { "Producer": "CALEM, est 1859", "Quinta": "Quinta do Sagrado", "Notes": "(Sogevinus)" },
+            { "Producer": "CALEM, est 1859", "Quinta": "Quinta do Arnozelo", "Notes": "(Sogevinus)\n(Douro Superior)\nTo be produced in future bottlings." },
+            { "Producer": "CHAMPALIMAUD", "Quinta": "Quinta do Cotto", "Notes": "(Baixo Corgo)" },
+            { "Producer": "CHURCHILL'S, est. 1981", "Quinta": "Quinta do Agua Alta", "Notes": "(Cima Corgo)\nThe quinta historically supplied grapes to Cockburn's and Taylor's." },
+            { "Producer": "CHURCHILL'S, est. 1981", "Quinta": "Quinta do Gricha", "Notes": "(Cima Corgo)\nAcquired in 1999." },
+            { "Producer": "COCKBURN'S, est. 1815", "Quinta": "Quinta dos Canais", "Notes": "(Symington)\n(Douro Superior)" },
+            { "Producer": "COCKBURN'S, est. 1815", "Quinta": "Quinta do Tua", "Notes": "(Symington)\n(Cima Corgo)\nOwned from 1889-2006, Sold to Graham's in 2006. In 1973, it absorbed Quinta da Chousa, an adjacent property owned by Symington." },
+            { "Producer": "CROFT, est. 1736", "Quinta": "Quinta do Roêda", "Notes": "(Fladgate's)\n(Cima Corgo)\nSQVP produced since 1978." },
+            { "Producer": "DELAFORCE, est. 1868", "Quinta": "Quinta da Corte", "Notes": "(Real Companhia aka Royal Oporto)\n(Cima Corgo)" },
+            { "Producer": "DOW'S, est. 1877", "Quinta": "Quinta do Bomfim", "Notes": "(Symington)\n(Cima Corgo)\nSQVPs since 1978" },
+            { "Producer": "DOW'S, est. 1877", "Quinta": "Quinta Senhora da Ribeira", "Notes": "(Symington)\n(Douro Superior)" },
+            { "Producer": "FERREIRA, est. 1751", "Quinta": "Quinta do Porto", "Notes": "(Sogrape)\n(Cima Corgo)\nGrapes used for Ferreira's Single Quinta 10 Year Tawny Port" },
+            { "Producer": "FERREIRA, est. 1751", "Quinta": "Quinta do Seixo", "Notes": "(Sogrape)\n(Cima Corgo)\nAcquired in 1979, SQVP first produced in 1983." },
+            { "Producer": "FONSECA, est. 1815", "Quinta": "Quinta do Panascal", "Notes": "(Fladgate's)\n(Cima Corgo)\nAcquired in 1978" },
+            { "Producer": "GRAHAM'S, est. 1820", "Quinta": "Quinta dos Malvedos", "Notes": "(Symington)\n(Cima Corgo)\nProduced as an SQVP beginning 1998" },
+            { "Producer": "GRAHAM'S, est. 1820", "Quinta": "Quinta do Tua", "Notes": "(Symington)\n(Cima Corgo)\nOwned by Ferreira, then Cockburn's, then acquired by Graham's in 2006. Presently, no SQVP by Graham's has been produced. (See Cockburn's)\nAlso owns Quinta da Vila Velha, Quinta do Vale de Malhadas, and Quinta das Lages. The three vineyards, as well as Quinta do Tua (as of yet), do not produce SQVP." },
+            { "Producer": "KOPKE, est. 1638", "Quinta": "Quinta do São Luiz", "Notes": "(Sogevinus)\n(Cima Corgo)\nAcquired in 1922; Kopke Vintage Ports use grapes primarily from this quinta." },
+            { "Producer": "MARTINEZ, est. 1790", "Quinta": "Quinta do Chousa", "Notes": "(Symington)\nAbsorbed by Quinta do Tua, an adjacent quinta, owned by the Symington Family." },
+            { "Producer": "MARTINEZ, est. 1790", "Quinta": "Quinta da Eira Velha", "Notes": "(Symington)\n(Cima Corgo)\nOne of the oldest vineyards in the Duoro Valley, dating back to 1513. Historically used by Graham’s, Ferreira, and Cockburn’s before being shipped under the Martinez label in 1987. Sold in 2007 to Fladgate’s." },
+            { "Producer": "MESSIAS, est. 1926", "Quinta": "Quinta do Cachão", "Notes": "(Cima Corgo)\nAcquired in 1956." },
+            { "Producer": "NIEPOORT, est. 1842", "Quinta": "Quinta do Passadouro", "Notes": "Quinta do Passadouro was acquired in 1991 by Niepoort, but since 2004, the Quinta has been independently produced. Then it was sold to AXA Millésimes and moved to the Quinta de Noval label in 2019." },
+            { "Producer": "DE ROMANIERA, est. 1854", "Quinta": "Quinta das Liceiras", "Notes": "(IDI)\n(Cima Corgo)" },
+            { "Producer": "QUINTA DO VESUVIO", "Quinta": "Quinta do Vesuvio", "Notes": "(Symington)\nQuinta do Vesuvio is the SQVP.\nVesuvio A Capela: A limited production, premium Vintage Port Bottling produced in 2007, 2011, 2016, and 2017.\n(Douro Superior)\nAcquired in 1987 by the Symington Family. Originally owned by the Ferreira Family." },
+            { "Producer": "QUINTA DO NOVAL, est. 1715", "Quinta": "Quinta do Silval", "Notes": "(AXA Millesimes)\n(Cima Corgo) (Last vintage 2015)" },
+            { "Producer": "QUINTA DO NOVAL, est. 1715", "Quinta": "Quinta do Passadouro", "Notes": "(AXA Millesimes)\n(Cima Corgo) (First vintage 2019)" },
+            { "Producer": "QUINTA DO NOVAL, est. 1715", "Quinta": "Quinta do Noval", "Notes": "(AXA Millesimes)\n(Cima Corgo)\nProperties made from grapes from various vineyards are labeled as “Noval.” Ports made from only “Quinta do Noval” are labeled as such." },
+            { "Producer": "QUINTA DO NOVAL, est. 1715", "Quinta": "Quinta do Noval Nacional", "Notes": "(AXA Millesimes)\n(Cima Corgo)\nNot a separate vineyard, but the heart of Quinta do Noval vineyard. Post-phylloxera, ungrafted vines." },
+            { "Producer": "RAMOS PINTO, est. 1880", "Quinta": "Quinta do Bom Retiro", "Notes": "(Roederer Group)\n(Cima Corgo)\nUsed for 20 Year Tawny Ports\n*Quinta do Urtiga and Quinta de Bons Ares are also properties of Ramos Pinto, but are not used for SQVP bottlings." },
+            { "Producer": "RAMOS PINTO, est. 1880", "Quinta": "Quinta do Ervamoira", "Notes": "(Roederer Group)\n(Douro Superior)\nUsed for SQVP as well as 10 Year Tawny Port Label.\nFormerly known as 'Quinta de Santa Maria. Entirely mechanized vineyard." },
+            { "Producer": "SANDEMAN, est. 1790", "Quinta": "Quinta do Vau", "Notes": "(Sogrape)\n(Cima Corgo)\nAcquired in 1988." },
+            { "Producer": "SANDEMAN, est. 1790", "Quinta": "Quinta do Seixo", "Notes": "(Sogrape)\n(Cima Corgo)\nSeixo, owned by Sogrape, was transferred to Sandeman in 2002, 2013 was first Sandeman QdSeixo." },
+            { "Producer": "SMITH WOODHOUSE, est. 1784", "Quinta": "Quinta da Madalena", "Notes": "(Symington)\n(Cima Corgo)" },
+            { "Producer": "TAYLOR-FLADGATE, est. 1692", "Quinta": "Quinta de Vargellas", "Notes": "(aka Taylor's)\n(Douro Superior)\nIn 1995, Vargellas Vinha Velha was produced from small old vine plots.\nPrimary vineyard used for Vintage Port Bottlings. First SQVP 1958 (and the first SQVP bottling marketed as such)." },
+            { "Producer": "TAYLOR-FLADGATE, est. 1692", "Quinta": "Quinta de Terra Feita", "Notes": "(aka Taylor's)\n(Cima Corgo)\nFirst SQVP in 1986. Used for Vintage Port Bottlings." },
+            { "Producer": "TAYLOR-FLADGATE, est. 1692", "Quinta": "Quinta do Junco", "Notes": "(aka Taylor's)\n(Cima Corgo)\nRecent acquisition, currently being used for Vintage Port bottlings." },
+            { "Producer": "VAN ZELLER, est. 1780", "Quinta": "Quinta do Roriz", "Notes": "(Cima Corgo)\nProduced from 1999-2009, but now currently owned by the Symington Family." },
+            { "Producer": "VAN ZELLER, est. 1780", "Quinta": "Quinta do Vale de Dona Maria", "Notes": "(Cima Corgo)\nPurchased in 1995. Producing Vintage Port and Duoro Tinto DOP wines." },
+            { "Producer": "WARRE’S, est. 1670", "Quinta": "Quinta da Cavadinha", "Notes": "(Symington)\n(Cima Corgo)\nQuinta do Retiro Antigo, de Telhada, and do Alvito are also owned by Warre’s for their port range." },
+            { "Producer": "WIESE & KROHN, est. 1865", "Quinta": "Quinta do Retiro Novo", "Notes": "(Fladgate)\n(Cima Corgo)\nAcquired by Taylor-Fladgate in June 2013." }
+        ];
+
+        // --- PRE-PROCESS DATA FOR GAME ---
+        const cleanProducer = (name) => name.split(',')[0].trim();
+        const cleanQuinta = (name) => name.split('(')[0].trim();
+
+        const GAME_DATA = DB_DATA.map(item => ({
+            producer: cleanProducer(item.Producer),
+            quinta: cleanQuinta(item.Quinta)
+        })).filter(item => item.quinta && item.producer); // Ensure no empty entries
+
+        const ALL_PRODUCERS = [...new Set(GAME_DATA.map(item => item.producer))];
+
+        // --- GAME STATE ---
+        let score = 0;
+        let currentQuestionIndex = 0;
+        let gameQuestions = [];
+        let firstTry = true;
+        let blockGuess = false;
+
+        // --- DOM ELEMENTS ---
+        const views = {
+            menu: document.getElementById('view-menu'),
+            database: document.getElementById('view-database'),
+            game: document.getElementById('view-game'),
+            score: document.getElementById('view-score')
+        };
+        const scoreDisplay = document.getElementById('score-display');
+        const questionCounter = document.getElementById('question-counter');
+        const quintaPrompt = document.getElementById('quinta-prompt');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const finalScoreDisplay = document.getElementById('final-score-display');
+        const finalFeedbackMessage = document.getElementById('final-feedback-message');
+
+        // --- NAVIGATION ---
+        function showView(viewId) {
+            Object.values(views).forEach(view => view.style.display = 'none');
+            views[viewId].style.display = 'block';
+        }
+
+        document.getElementById('start-btn').addEventListener('click', startGame);
+        document.getElementById('study-btn').addEventListener('click', showDatabase);
+        document.getElementById('play-again-btn').addEventListener('click', startGame);
+        document.querySelectorAll('.back-menu-btn').forEach(btn => {
+            btn.addEventListener('click', () => showView('menu'));
+        });
+
+        // --- DATABASE VIEW ---
+        function showDatabase() {
+            const listContainer = document.getElementById('database-list');
+            listContainer.innerHTML = ''; // Clear old list
+
+            DB_DATA.forEach(item => {
+                const itemEl = document.createElement('div');
+                itemEl.className = 'bg-gray-700 p-4 rounded-lg shadow';
+                
+                // Format notes to preserve line breaks
+                const formattedNotes = item.Notes.replace(/\n/g, '<br>');
+
+                itemEl.innerHTML = `
+                    <h3 class="text-lg font-bold text-blue-300">${item.Producer}</h3>
+                    <p class="text-md font-semibold text-white mt-1">${item.Quinta}</p>
+                    <p class="text-sm text-gray-400 mt-2">${formattedNotes}</p>
+                `;
+                listContainer.appendChild(itemEl);
+            });
+            showView('database');
+        }
+
+        // --- GAME LOGIC ---
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function startGame() {
+            score = 0;
+            currentQuestionIndex = 0;
+            // Generate 10 random, unique questions
+            gameQuestions = shuffleArray([...GAME_DATA]).slice(0, 10);
+            loadQuestion();
+            showView('game');
+        }
+
+        function loadQuestion() {
+            if (currentQuestionIndex >= 10) {
+                showScore();
+                return;
+            }
+
+            blockGuess = false;
+            firstTry = true;
+            feedbackMessage.textContent = '';
+            
+            const currentQuestion = gameQuestions[currentQuestionIndex];
+            
+            // Update UI
+            scoreDisplay.textContent = score;
+            questionCounter.textContent = `${currentQuestionIndex + 1} / 10`;
+            quintaPrompt.textContent = currentQuestion.quinta;
+
+            // Generate options
+            const correctProducer = currentQuestion.producer;
+            let options = [correctProducer];
+            
+            // Get 3 random wrong producers
+            const wrongProducers = shuffleArray(ALL_PRODUCERS.filter(p => p !== correctProducer));
+            options.push(...wrongProducers.slice(0, 3));
+
+            // Shuffle and display options
+            optionsContainer.innerHTML = '';
+            shuffleArray(options).forEach(producer => {
+                const button = document.createElement('button');
+                button.textContent = producer;
+                button.className = 'btn-option w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold py-4 px-5 rounded-lg transition-all shadow-md text-left';
+                button.addEventListener('click', () => handleGuess(button, correctProducer));
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function handleGuess(button, correctProducer) {
+            if (blockGuess) return; // Prevent multiple clicks
+
+            const selectedProducer = button.textContent;
+
+            if (selectedProducer === correctProducer) {
+                // --- CORRECT GUESS ---
+                blockGuess = true;
+                button.classList.add('correct');
+                feedbackMessage.textContent = 'Correct!';
+                feedbackMessage.className = 'text-center mt-6 h-6 text-lg font-semibold text-green-400';
+
+                if (firstTry) {
+                    score += 2;
+                } else {
+                    score += 1;
+                }
+                
+                // Disable all buttons
+                optionsContainer.querySelectorAll('.btn-option').forEach(btn => btn.disabled = true);
+
+                currentQuestionIndex++;
+                scoreDisplay.textContent = score;
+                setTimeout(loadQuestion, 1500); // Wait 1.5s before next question
+            } else {
+                // --- INCORRECT GUESS ---
+                button.classList.add('incorrect');
+                button.disabled = true; // Disable this wrong option
+                feedbackMessage.textContent = 'Try again!';
+                feedbackMessage.className = 'text-center mt-6 h-6 text-lg font-semibold text-red-400';
+                
+                score -= 1;
+                firstTry = false;
+                scoreDisplay.textContent = score;
+            }
+        }
+
+        function showScore() {
+            showView('score');
+            const maxScore = 20;
+            const percentage = (score / maxScore) * 100;
+            
+            finalScoreDisplay.textContent = `${score} / ${maxScore}`;
+
+            if (percentage >= 90) {
+                finalFeedbackMessage.textContent = "Excellent! You're a Port expert!";
+                finalFeedbackMessage.className = "text-2xl font-semibold text-green-400";
+            } else if (percentage >= 70) {
+                finalFeedbackMessage.textContent = "Great job! Very impressive knowledge.";
+                finalFeedbackMessage.className = "text-2xl font-semibold text-blue-300";
+            } else if (percentage >= 50) {
+                finalFeedbackMessage.textContent = "Good effort! You're on your way.";
+                finalFeedbackMessage.className = "text-2xl font-semibold text-yellow-300";
+            } else {
+                finalFeedbackMessage.textContent = "Keep studying! The database is waiting.";
+                finalFeedbackMessage.className = "text-2xl font-semibold text-red-400";
+            }
+        }
+
+    </script>
+</body>
+</html>
