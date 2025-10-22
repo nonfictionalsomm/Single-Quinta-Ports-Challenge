@@ -107,9 +107,9 @@
 
     <!-- Game Container -->
     <div id="game-container" class="w-full max-w-4xl mx-auto hidden">
-        <div class="text-center mb-6">
-            <h1 class="text-4xl md:text-5xl font-bold" style="color: #8C1C13;">Port Master</h1>
-            <p class="text-lg text-gray-600 mt-2">Quinta-Producer Challenge</p>
+        <div class="flex justify-between items-center mb-6">
+             <h1 class="text-4xl md:text-5xl font-bold" style="color: #8C1C13;">Port Master</h1>
+             <button id="game-back-to-menu-btn" class="btn-secondary font-bold py-2 px-6 rounded-lg transition-colors text-lg">&larr; Main Menu</button>
         </div>
 
         <!-- Score and Round Info -->
@@ -140,12 +140,32 @@
             </div>
         </div>
     </div>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-lg w-full transform transition-all scale-95 opacity-0">
+            <h2 class="text-4xl font-bold mb-6 text-center text-green-700">Correct!</h2>
+            
+            <div class="text-left space-y-4 bg-gray-50 p-6 rounded-lg border border-gray-200">
+                <div>
+                    <h3 class="text-xl font-bold" style="color: #8C1C13;" id="success-producer">Producer Name, est. XXXX</h3>
+                    <p class="text-lg font-semibold text-gray-800 mt-1" id="success-quinta">Quinta Name Here</p>
+                </div>
+                <div>
+                    <h4 class="text-md font-bold text-gray-500 uppercase tracking-wider">Notes</h4>
+                    <p class="text-base text-gray-700 mt-1" id="success-notes">Notes will go here...</p>
+                </div>
+            </div>
+
+            <button id="next-round-btn" class="w-full btn-primary font-bold py-3 px-4 rounded-lg transition-colors mt-8 text-lg">Next Round</button>
+        </div>
+    </div>
     
     <!-- Game Over Modal -->
     <div id="game-over-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
         <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center transform transition-all scale-95 opacity-0">
             <h2 class="text-4xl font-bold mb-4" style="color: #8C1C13;">Challenge Complete!</h2>
-            <p id="final-score-message" class...="text-3xl font-bold mb-4" style="color: #8C1C13;"></p>
+            <p id="final-score-message" class="text-3xl font-bold mb-4" style="color: #8C1C13;"></p>
             <div class="bg-red-800/10 p-4 rounded-lg mb-6">
                 <p class="text-lg text-left clear-both">Final Score: <span id="final-score" class="font-bold float-right">0</span></p>
                 <p class="text-lg text-left mt-1 clear-both">Percentage: <span id="final-percentage" class="font-bold float-right">0%</span></p>
@@ -156,59 +176,64 @@
 
     <script>
         // --- DATA ---
+        // This is the full database, used for the "Study" and "Success" modals
         const DB_DATA = [
-            { "Producer": "BURMESTER, est. 1730", "Quinta": "Quinta do Nova de Nossa Senhora do Carmo", "Notes": "(Sogevinus)\n(Cima Corgo)\nPurchased by Burmester in 1991 from Royal Oporto/Real Companhia Velha. SQVP was made as a separate label.\nAlso produces Quinta do Arnozelo (see Calem), which is a quinta under their parent company, Sogevinus." },
-            { "Producer": "CALEM, est 1859", "Quinta": "Quinta da Foz", "Notes": "(Sogevinus)\n(Cima Corgo)\nOwned by Calem since 1885. SQVP first produced from the quinta in 1982." },
+            { "Producer": "BURMESTER, est. 1730", "Quinta": "Quinta do Nova de Nossa Senhora do Carmo (Cima Corgo)", "Notes": "(Sogevinus)\nPurchased by Burmester in 1991 from Royal Oporto/Real Companhia Velha. SQVP was made as a separate label.\nAlso produces Quinta do Arnozelo (see Calem), which is a quinta under their parent company, Sogevinus." },
+            { "Producer": "CALEM, est 1859", "Quinta": "Quinta da Foz (Cima Corgo)", "Notes": "(Sogevinus)\nOwned by Calem since 1885. SQVP first produced from the quinta in 1982." },
             { "Producer": "CALEM, est 1859", "Quinta": "Quinta do Sagrado", "Notes": "(Sogevinus)" },
-            { "Producer": "CALEM, est 1859", "Quinta": "Quinta do Arnozelo", "Notes": "(Sogevinus)\n(Douro Superior)\nTo be produced in future bottlings." },
-            { "Producer": "CHAMPALIMAUD", "Quinta": "Quinta do Cotto", "Notes": "(Baixo Corgo)" },
-            { "Producer": "CHURCHILL'S, est. 1981", "Quinta": "Quinta do Agua Alta", "Notes": "(Cima Corgo)\nThe quinta historically supplied grapes to Cockburn's and Taylor's." },
-            { "Producer": "CHURCHILL'S, est. 1981", "Quinta": "Quinta do Gricha", "Notes": "(Cima Corgo)\nAcquired in 1999." },
-            { "Producer": "COCKBURN'S, est. 1815", "Quinta": "Quinta dos Canais", "Notes": "(Symington)\n(Douro Superior)" },
-            { "Producer": "COCKBURN'S, est. 1815", "Quinta": "Quinta do Tua", "Notes": "(Symington)\n(Cima Corgo)\nOwned from 1889-2006, Sold to Graham's in 2006. In 1973, it absorbed Quinta da Chousa, an adjacent property owned by Symington." },
-            { "Producer": "CROFT, est. 1736", "Quinta": "Quinta do Roêda", "Notes": "(Fladgate's)\n(Cima Corgo)\nSQVP produced since 1978." },
-            { "Producer": "DELAFORCE, est. 1868", "Quinta": "Quinta da Corte", "Notes": "(Real Companhia aka Royal Oporto)\n(Cima Corgo)" },
-            { "Producer": "DOW'S, est. 1877", "Quinta": "Quinta do Bomfim", "Notes": "(Symington)\n(Cima Corgo)\nSQVPs since 1978" },
-            { "Producer": "DOW'S, est. 1877", "Quinta": "Quinta Senhora da Ribeira", "Notes": "(Symington)\n(Douro Superior)" },
-            { "Producer": "FERREIRA, est. 1751", "Quinta": "Quinta do Porto", "Notes": "(Sogrape)\n(Cima Corgo)\nGrapes used for Ferreira's Single Quinta 10 Year Tawny Port" },
-            { "Producer": "FERREIRA, est. 1751", "Quinta": "Quinta do Seixo", "Notes": "(Sogrape)\n(Cima Corgo)\nAcquired in 1979, SQVP first produced in 1983." },
-            { "Producer": "FONSECA, est. 1815", "Quinta": "Quinta do Panascal", "Notes": "(Fladgate's)\n(Cima Corgo)\nAcquired in 1978" },
-            { "Producer": "GRAHAM'S, est. 1820", "Quinta": "Quinta dos Malvedos", "Notes": "(Symington)\n(Cima Corgo)\nProduced as an SQVP beginning 1998" },
-            { "Producer": "GRAHAM'S, est. 1820", "Quinta": "Quinta do Tua", "Notes": "(Symington)\n(Cima Corgo)\nOwned by Ferreira, then Cockburn's, then acquired by Graham's in 2006. Presently, no SQVP by Graham's has been produced. (See Cockburn's)\nAlso owns Quinta da Vila Velha, Quinta do Vale de Malhadas, and Quinta das Lages. The three vineyards, as well as Quinta do Tua (as of yet), do not produce SQVP." },
-            { "Producer": "KOPKE, est. 1638", "Quinta": "Quinta do São Luiz", "Notes": "(Sogevinus)\n(Cima Corgo)\nAcquired in 1922; Kopke Vintage Ports use grapes primarily from this quinta." },
+            { "Producer": "CALEM, est 1859", "Quinta": "Quinta do Arnozelo (Douro Superior)", "Notes": "(Sogevinus)\nTo be produced in future bottlings." },
+            { "Producer": "CHAMPALIMAUD", "Quinta": "Quinta do Cotto (Baixo Corgo)", "Notes": "" },
+            { "Producer": "CHURCHILL'S, est. 1981", "Quinta": "Quinta do Agua Alta (Cima Corgo)", "Notes": "The quinta historically supplied grapes to Cockburn's and Taylor's." },
+            { "Producer": "CHURCHILL'S, est. 1981", "Quinta": "Quinta do Gricha (Cima Corgo)", "Notes": "Acquired in 1999." },
+            { "Producer": "COCKBURN'S, est. 1815", "Quinta": "Quinta dos Canais (Douro Superior)", "Notes": "(Symington)" },
+            { "Producer": "COCKBURN'S, est. 1815", "Quinta": "Quinta do Tua (Cima Corgo)", "Notes": "(Symington)\nOwned from 1889-2006, Sold to Graham's in 2006. In 1973, it absorbed Quinta da Chousa, an adjacent property owned by Symington." },
+            { "Producer": "CROFT, est. 1736", "Quinta": "Quinta do Roêda (Cima Corgo)", "Notes": "(Fladgate's)\nSQVP produced since 1978." },
+            { "Producer": "DELAFORCE, est. 1868", "Quinta": "Quinta da Corte (Cima Corgo)", "Notes": "(Real Companhia aka Royal Oporto)" },
+            { "Producer": "DOW'S, est. 1877", "Quinta": "Quinta do Bomfim (Cima Corgo)", "Notes": "(Symington)\nSQVPs since 1978" },
+            { "Producer": "DOW'S, est. 1877", "Quinta": "Quinta Senhora da Ribeira (Douro Superior)", "Notes": "(Symington)" },
+            { "Producer": "FERREIRA, est. 1751", "Quinta": "Quinta do Porto (Cima Corgo)", "Notes": "(Sogrape)\nGrapes used for Ferreira's Single Quinta 10 Year Tawny Port" },
+            { "Producer": "FERREIRA, est. 1751", "Quinta": "Quinta do Seixo (Cima Corgo)", "Notes": "(Sogrape)\nAcquired in 1979, SQVP first produced in 1983." },
+            { "Producer": "FONSECA, est. 1815", "Quinta": "Quinta do Panascal (Cima Corgo)", "Notes": "(Fladgate's)\nAcquired in 1978" },
+            { "Producer": "GRAHAM'S, est. 1820", "Quinta": "Quinta dos Malvedos (Cima Corgo)", "Notes": "(Symington)\nProduced as an SQVP beginning 1998" },
+            { "Producer": "GRAHAM'S, est. 1820", "Quinta": "Quinta do Tua (Cima Corgo)", "Notes": "(Symington)\nOwned by Ferreira, then Cockburn's, then acquired by Graham's in 2006. Presently, no SQVP by Graham's has been produced. (See Cockburn's)\nAlso owns Quinta da Vila Velha, Quinta do Vale de Malhadas, and Quinta das Lages. The three vineyards, as well as Quinta do Tua (as of yet), do not produce SQVP." },
+            { "Producer": "KOPKE, est. 1638", "Quinta": "Quinta do São Luiz (Cima Corgo)", "Notes": "(Sogevinus)\nAcquired in 1922; Kopke Vintage Ports use grapes primarily from this quinta." },
             { "Producer": "MARTINEZ, est. 1790", "Quinta": "Quinta do Chousa", "Notes": "(Symington)\nAbsorbed by Quinta do Tua, an adjacent quinta, owned by the Symington Family." },
-            { "Producer": "MARTINEZ, est. 1790", "Quinta": "Quinta da Eira Velha", "Notes": "(Symington)\n(Cima Corgo)\nOne of the oldest vineyards in the Duoro Valley, dating back to 1513. Historically used by Graham’s, Ferreira, and Cockburn’s before being shipped under the Martinez label in 1987. Sold in 2007 to Fladgate’s." },
-            { "Producer": "MESSIAS, est. 1926", "Quinta": "Quinta do Cachão", "Notes": "(Cima Corgo)\nAcquired in 1956." },
+            { "Producer": "MARTINEZ, est. 1790", "Quinta": "Quinta da Eira Velha (Cima Corgo)", "Notes": "(Symington)\nOne of the oldest vineyards in the Duoro Valley, dating back to 1513. Historically used by Graham’s, Ferreira, and Cockburn’s before being shipped under the Martinez label in 1987. Sold in 2007 to Fladgate’s." },
+            { "Producer": "MESSIAS, est. 1926", "Quinta": "Quinta do Cachão (Cima Corgo)", "Notes": "Acquired in 1956." },
             { "Producer": "NIEPOORT, est. 1842", "Quinta": "Quinta do Passadouro", "Notes": "Quinta do Passadouro was acquired in 1991 by Niepoort, but since 2004, the Quinta has been independently produced. Then it was sold to AXA Millésimes and moved to the Quinta de Noval label in 2019." },
-            { "Producer": "DE ROMANIERA, est. 1854", "Quinta": "Quinta das Liceiras", "Notes": "(IDI)\n(Cima Corgo)" },
+            { "Producer": "DE ROMANIERA, est. 1854", "Quinta": "Quinta das Liceiras (Cima Corgo)", "Notes": "(IDI)" },
             { "Producer": "QUINTA DO VESUVIO", "Quinta": "Quinta do Vesuvio", "Notes": "(Symington)\nQuinta do Vesuvio is the SQVP.\nVesuvio A Capela: A limited production, premium Vintage Port Bottling produced in 2007, 2011, 2016, and 2017.\n(Douro Superior)\nAcquired in 1987 by the Symington Family. Originally owned by the Ferreira Family." },
-            { "Producer": "QUINTA DO NOVAL, est. 1715", "Quinta": "Quinta do Silval", "Notes": "(AXA Millesimes)\n(Cima Corgo) (Last vintage 2015)" },
-            { "Producer": "QUINTA DO NOVAL, est. 1715", "Quinta": "Quinta do Passadouro", "Notes": "(AXA Millesimes)\n(Cima Corgo) (First vintage 2019)" },
-            { "Producer": "QUINTA DO NOVAL, est. 1715", "Quinta": "Quinta do Noval", "Notes": "(AXA Millesimes)\n(Cima Corgo)\nProperties made from grapes from various vineyards are labeled as “Noval.” Ports made from only “Quinta do Noval” are labeled as such." },
-            { "Producer": "QUINTA DO NOVAL, est. 1715", "Quinta": "Quinta do Noval Nacional", "Notes": "(AXA Millesimes)\n(Cima Corgo)\nNot a separate vineyard, but the heart of Quinta do Noval vineyard. Post-phylloxera, ungrafted vines." },
-            { "Producer": "RAMOS PINTO, est. 1880", "Quinta": "Quinta do Bom Retiro", "Notes": "(Roederer Group)\n(Cima Corgo)\nUsed for 20 Year Tawny Ports\n*Quinta do Urtiga and Quinta de Bons Ares are also properties of Ramos Pinto, but are not used for SQVP bottlings." },
-            { "Producer": "RAMOS PINTO, est. 1880", "Quinta": "Quinta do Ervamoira", "Notes": "(Roederer Group)\n(Douro Superior)\nUsed for SQVP as well as 10 Year Tawny Port Label.\nFormerly known as 'Quinta de Santa Maria. Entirely mechanized vineyard." },
-            { "Producer": "SANDEMAN, est. 1790", "Quinta": "Quinta do Vau", "Notes": "(Sogrape)\n(Cima Corgo)\nAcquired in 1988." },
-            { "Producer": "SANDEMAN, est. 1790", "Quinta": "Quinta do Seixo", "Notes": "(Sogrape)\n(Cima Corgo)\nSeixo, owned by Sogrape, was transferred to Sandeman in 2002, 2013 was first Sandeman QdSeixo." },
-            { "Producer": "SMITH WOODHOUSE, est. 1784", "Quinta": "Quinta da Madalena", "Notes": "(Symington)\n(Cima Corgo)" },
-            { "Producer": "TAYLOR-FLADGATE, est. 1692", "Quinta": "Quinta de Vargellas", "Notes": "(aka Taylor's)\n(Douro Superior)\nIn 1995, Vargellas Vinha Velha was produced from small old vine plots.\nPrimary vineyard used for Vintage Port Bottlings. First SQVP 1958 (and the first SQVP bottling marketed as such)." },
-            { "Producer": "TAYLOR-FLADGATE, est. 1692", "Quinta": "Quinta de Terra Feita", "Notes": "(aka Taylor's)\n(Cima Corgo)\nFirst SQVP in 1986. Used for Vintage Port Bottlings." },
-            { "Producer": "TAYLOR-FLADGATE, est. 1692", "Quinta": "Quinta do Junco", "Notes": "(aka Taylor's)\n(Cima Corgo)\nRecent acquisition, currently being used for Vintage Port bottlings." },
-            { "Producer": "VAN ZELLER, est. 1780", "Quinta": "Quinta do Roriz", "Notes": "(Cima Corgo)\nProduced from 1999-2009, but now currently owned by the Symington Family." },
-            { "Producer": "VAN ZELLER, est. 1780", "Quinta": "Quinta do Vale de Dona Maria", "Notes": "(Cima Corgo)\nPurchased in 1995. Producing Vintage Port and Duoro Tinto DOP wines." },
-            { "Producer": "WARRE’S, est. 1670", "Quinta": "Quinta da Cavadinha", "Notes": "(Symington)\n(Cima Corgo)\nQuinta do Retiro Antigo, de Telhada, and do Alvito are also owned by Warre’s for their port range." },
-            { "Producer": "WIESE & KROHN, est. 1865", "Quinta": "Quinta do Retiro Novo", "Notes": "(Fladgate)\n(Cima Corgo)\nAcquired by Taylor-Fladgate in June 2013." }
+            { "Producer": "QUINTA DO NOVAL, est. 1715", "Quinta": "Quinta do Silval (Cima Corgo)", "Notes": "(AXA Millesimes)\n(Last vintage 2015)" },
+            { "Producer": "QUINTA DO NOVAL, est. 1715", "Quinta": "Quinta do Passadouro (Cima Corgo)", "Notes": "(AXA Millesimes)\n(First vintage 2019)" },
+            { "Producer": "QUINTA DO NOVAL, est. 1715", "Quinta": "Quinta do Noval (Cima Corgo)", "Notes": "(AXA Millesimes)\nProperties made from grapes from various vineyards are labeled as “Noval.” Ports made from only “Quinta do Noval” are labeled as such." },
+            { "Producer": "QUINTA DO NOVAL, est. 1715", "Quinta": "Quinta do Noval Nacional (Cima Corgo)", "Notes": "(AXA Millesimes)\nNot a separate vineyard, but the heart of Quinta do Noval vineyard. Post-phylloxera, ungrafted vines." },
+            { "Producer": "RAMOS PINTO, est. 1880", "Quinta": "Quinta do Bom Retiro (Cima Corgo)", "Notes": "(Roederer Group)\nUsed for 20 Year Tawny Ports\n*Quinta do Urtiga and Quinta de Bons Ares are also properties of Ramos Pinto, but are not used for SQVP bottlings." },
+            { "Producer": "RAMOS PINTO, est. 1880", "Quinta": "Quinta do Ervamoira (Douro Superior)", "Notes": "(Roederer Group)\nUsed for SQVP as well as 10 Year Tawny Port Label.\nFormerly known as 'Quinta de Santa Maria. Entirely mechanized vineyard." },
+            { "Producer": "SANDEMAN, est. 1790", "Quinta": "Quinta do Vau (Cima Corgo)", "Notes": "(Sogrape)\nAcquired in 1988." },
+            { "Producer": "SANDEMAN, est. 1790", "Quinta": "Quinta do Seixo (Cima Corgo)", "Notes": "(Sogrape)\nSeixo, owned by Sogrape, was transferred to Sandeman in 2002, 2013 was first Sandeman QdSeixo." },
+            { "Producer": "SMITH WOODHOUSE, est. 1784", "Quinta": "Quinta da Madalena (Cima Corgo)", "Notes": "(Symington)" },
+            { "Producer": "TAYLOR-FLADGATE, est. 1692", "Quinta": "Quinta de Vargellas (Douro Superior)", "Notes": "(aka Taylor's)\nIn 1995, Vargellas Vinha Velha was produced from small old vine plots.\nPrimary vineyard used for Vintage Port Bottlings. First SQVP 1958 (and the first SQVP bottling marketed as such)." },
+            { "Producer": "TAYLOR-FLADGATE, est. 1692", "Quinta": "Quinta de Terra Feita (Cima Corgo)", "Notes": "(aka Taylor's)\nFirst SQVP in 1986. Used for Vintage Port Bottlings." },
+            { "Producer": "TAYLOR-FLADGATE, est. 1692", "Quinta": "Quinta do Junco (Cima Corgo)", "Notes": "(aka Taylor's)\nRecent acquisition, currently being used for Vintage Port bottlings." },
+            { "Producer": "VAN ZELLER, est. 1780", "Quinta": "Quinta do Roriz (Cima Corgo)", "Notes": "Produced from 1999-2009, but now currently owned by the Symington Family." },
+            { "Producer": "VAN ZELLER, est. 1780", "Quinta": "Quinta do Vale de Dona Maria (Cima Corgo)", "Notes": "Purchased in 1995. Producing Vintage Port and Duoro Tinto DOP wines." },
+            { "Producer": "WARRE’S, est. 1670", "Quinta": "Quinta da Cavadinha (Cima Corgo)", "Notes": "(Symington)\nQuinta do Retiro Antigo, de Telhada, and do Alvito are also owned by Warre’s for their port range." },
+            { "Producer": "WIESE & KROHN, est. 1865", "Quinta": "Quinta do Retiro Novo (Cima Corgo)", "Notes": "(Fladgate)\nAcquired by Taylor-Fladgate in June 2013." }
         ];
 
         // --- PRE-PROCESS DATA ---
+        // Helper function to clean producer name for matching
         const cleanProducer = (name) => name.split(',')[0].trim();
+        // Helper function to clean quinta name for matching
         const cleanQuinta = (name) => name.split('(')[0].trim();
 
+        // This is the clean data used for the game logic
         const GAME_DATA = DB_DATA.map(item => ({
             producer: cleanProducer(item.Producer),
             quinta: cleanQuinta(item.Quinta)
         })).filter(item => item.quinta && item.producer); // Ensure no empty entries
 
+        // A unique list of all producer names for generating wrong answers
         const ALL_PRODUCERS = [...new Set(GAME_DATA.map(item => item.producer))];
 
         const TOTAL_ROUNDS = 10;
@@ -225,11 +250,14 @@
         const startModal = document.getElementById('start-modal');
         const databaseView = document.getElementById('database-view');
         const gameContainer = document.getElementById('game-container');
+        const successModal = document.getElementById('success-modal');
         const gameOverModal = document.getElementById('game-over-modal');
         
         const startGameBtn = document.getElementById('start-game-btn');
         const studyDbBtn = document.getElementById('study-db-btn');
         const backToMenuBtn = document.getElementById('back-to-menu-btn');
+        const gameBackToMenuBtn = document.getElementById('game-back-to-menu-btn');
+        const nextRoundBtn = document.getElementById('next-round-btn');
         const playAgainBtn = document.getElementById('play-again-btn');
 
         const databaseList = document.getElementById('database-list');
@@ -239,6 +267,12 @@
         const optionsContainer = document.getElementById('options-container');
         const feedbackMessage = document.getElementById('feedback-message');
         
+        // Success Modal Content
+        const successProducer = document.getElementById('success-producer');
+        const successQuinta = document.getElementById('success-quinta');
+        const successNotes = document.getElementById('success-notes');
+
+        // Game Over Modal Content
         const finalScore = document.getElementById('final-score');
         const finalPercentage = document.getElementById('final-percentage');
         const finalScoreMessage = document.getElementById('final-score-message');
@@ -264,7 +298,6 @@
             score = 0;
             currentRound = 1;
             gameQuestions = shuffleArray([...GAME_DATA]).slice(0, TOTAL_ROUNDS);
-            
             startRound();
         }
         
@@ -343,10 +376,11 @@
 
                 updateScoreboard();
                 
-                setTimeout(() => {
-                    currentRound++;
-                    startRound();
-                }, 1500); // Wait 1.5s before next question
+                // Find full data and show success modal
+                const currentQuestion = gameQuestions[currentRound - 1];
+                const fullData = findFullData(currentQuestion);
+                populateSuccessModal(fullData);
+                setTimeout(showSuccessModal, 500); // Wait 0.5s before showing modal
 
             } else {
                 // --- INCORRECT GUESS ---
@@ -364,6 +398,47 @@
                     button.classList.remove('incorrect');
                 }, 500);
             }
+        }
+
+        /**
+         * Finds the full DB_DATA entry based on the clean GAME_DATA object.
+         */
+        function findFullData(gameQuestion) {
+            return DB_DATA.find(item => 
+                cleanProducer(item.Producer) === gameQuestion.producer &&
+                cleanQuinta(item.Quinta) === gameQuestion.quinta
+            ) || { Producer: "Error", Quinta: "Error", Notes: "Could not find data." };
+        }
+
+        /**
+         * Populates the Success Modal with the full data.
+         */
+        function populateSuccessModal(fullData) {
+            successProducer.textContent = fullData.Producer;
+            successQuinta.textContent = fullData.Quinta;
+            successNotes.innerHTML = fullData.Notes.replace(/\n/g, '<br>') || "<em>No notes available.</em>";
+        }
+
+        /**
+         * Shows the success modal.
+         */
+        function showSuccessModal() {
+            successModal.classList.remove('hidden');
+            setTimeout(() => {
+                successModal.firstElementChild.classList.remove('scale-95', 'opacity-0');
+            }, 10);
+        }
+
+        /**
+         * Hides the success modal and starts the next round.
+         */
+        function hideSuccessModal() {
+            successModal.firstElementChild.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                successModal.classList.add('hidden');
+                currentRound++;
+                startRound();
+            }, 200);
         }
 
         /**
@@ -385,7 +460,7 @@
                 itemEl.className = 'border-b border-gray-200 pb-4';
                 
                 // Format notes to preserve line breaks
-                const formattedNotes = item.Notes.replace(/\n/g, '<br>');
+                const formattedNotes = item.Notes.replace(/\n/g, '<br>') || "<em>No notes available.</em>";
 
                 itemEl.innerHTML = `
                     <h3 class="text-xl font-bold" style="color: #8C1C13;">${item.Producer}</h3>
@@ -439,14 +514,13 @@
         }
 
         /**
-         * Hides the game over screen and starts a new game.
+         * Hides the game over screen and returns to the start modal.
          */
         function hideGameOver() {
             gameOverModal.firstElementChild.classList.add('scale-95', 'opacity-0');
             setTimeout(() => {
                 gameOverModal.classList.add('hidden');
-                initGame();
-                gameContainer.classList.remove('hidden'); // Show game
+                startModal.classList.remove('hidden');
             }, 200);
         }
 
@@ -459,6 +533,13 @@
         
         studyDbBtn.addEventListener('click', showDatabase);
         backToMenuBtn.addEventListener('click', hideDatabase);
+        
+        gameBackToMenuBtn.addEventListener('click', () => {
+            gameContainer.classList.add('hidden');
+            startModal.classList.remove('hidden');
+        });
+
+        nextRoundBtn.addEventListener('click', hideSuccessModal);
         playAgainBtn.addEventListener('click', hideGameOver);
 
     </script>
