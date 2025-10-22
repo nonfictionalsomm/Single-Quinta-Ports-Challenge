@@ -4,137 +4,158 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quinta-Producer Challenge</title>
-    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Load Inter font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Lato', sans-serif;
+            background-color: #FDF8F2; /* Creamy background */
+            color: #4B3F3F; /* Dark brown text */
         }
-        /* Custom styles for button states */
-        .btn-option.correct {
-            background-color: #16a34a; /* green-600 */
-            border-color: #16a34a;
-            color: white;
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
         }
-        .btn-option.incorrect {
-            background-color: #dc2626; /* red-600 */
-            border-color: #dc2626;
-            color: white;
-            opacity: 0.6;
+        .game-card {
+            background-color: #FFFFFF;
+            border: 1px solid #DED1C1;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .btn-choice {
+            transition: all 0.2s ease-in-out;
+            border: 2px solid #DED1C1;
+            background-color: #fff;
+        }
+        .btn-choice:hover:not(:disabled) {
+            background-color: #FDF8F2;
+            transform: translateY(-2px);
+        }
+        .btn-choice.correct {
+            background-color: #D1FAE5; /* Green for correct */
+            border-color: #6EE7B7;
+            color: #065F46;
             cursor: not-allowed;
         }
-        /* Hide views by default */
-        .view {
-            display: none;
+        .btn-choice.incorrect {
+            animation: shake 0.5s;
+            background-color: #FEE2E2; /* Red for incorrect */
+            border-color: #FCA5A5;
+            cursor: not-allowed;
+        }
+        .btn-primary {
+             background-color: #8C1C13; /* Adapted red-800 */
+             color: white;
+        }
+        .btn-primary:hover {
+            background-color: #6D160E; /* Adapted red-900 */
+        }
+        .btn-secondary {
+            background-color: #DED1C1;
+            color: #4B3F3F;
+        }
+        .btn-secondary:hover {
+            background-color: #C9BBAA;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
         }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-200 flex items-center justify-center min-h-screen p-4">
+<body class="flex items-center justify-center min-h-screen p-4">
 
-    <div class="max-w-3xl w-full bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8">
-
-        <!-- ===== Main Menu View ===== -->
-        <div id="view-menu" class="view" style="display: block;">
-            <h1 class="text-3xl font-bold text-center text-white mb-6">Quinta-Producer Challenge</h1>
-            
-            <div class="bg-gray-700 p-6 rounded-lg mb-8">
-                <h2 class="text-xl font-semibold mb-3 text-blue-300">How to Play</h2>
-                <p class="mb-4">Test your knowledge of Single Quinta Vintage Ports!</p>
-                <ul class="list-disc list-inside space-y-2">
-                    <li>You will be shown a <span class="font-semibold text-white">Quinta</span> and must match it to the correct <span class="font-semibold text-white">Producer</span>.</li>
-                    <li>The game consists of <span class="font-semibold text-white">10 rounds</span>.</li>
-                    <li>You get unlimited guesses per round.</li>
+    <!-- Start Game Modal -->
+    <div id="start-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-lg w-full text-center transform transition-all">
+            <h2 class="text-4xl font-bold mb-4" style="color: #8C1C13;">Welcome!</h2>
+            <p class="text-lg mb-6 text-left text-gray-700">Test your knowledge of Single Quinta Vintage Ports.</p>
+            <div class="text-left space-y-3 mb-8 bg-red-800/5 p-4 rounded-lg border border-red-800/10">
+                <p><strong style="color: #8C1C13;">GOAL:</strong> Match the Quinta with its correct Producer.</p>
+                <p><strong style="color: #8C1C13;">SCORING:</strong></p>
+                <ul class="list-disc list-inside pl-4 text-gray-600">
+                    <li><span class="font-bold text-green-700">+2 points</span> for a correct match on the first try.</li>
+                    <li><span class="font-bold text-green-700">+1 point</span> for a correct match on subsequent tries.</li>
+                    <li><span class="font-bold text-red-700">-1 point</span> for an incorrect match.</li>
                 </ul>
+                <p class="mt-2 text-gray-600">You get unlimited guesses, but be careful with your score!</p>
             </div>
-
-            <div class="bg-gray-700 p-6 rounded-lg mb-8">
-                <h2 class="text-xl font-semibold mb-3 text-yellow-300">Scoring</h2>
-                <ul class="list-disc list-inside space-y-2">
-                    <li><span class="font-semibold text-green-400">+2 points</span> for a correct match on the first try.</li>
-                    <li><span class="font-semibold text-green-500">+1 point</span> for a correct match on any subsequent try.</li>
-                    <li><span class="font-semibold text-red-400">-1 point</span> for each incorrect guess.</li>
-                </ul>
-                <p class="mt-4">Your final score will be out of a maximum of <span class="font-semibold text-white">20 points</span>.</p>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <button id="start-game-btn" class="w-full btn-primary font-bold py-3 px-4 rounded-lg transition-colors text-xl">Start Challenge</button>
+                <button id="study-db-btn" class="w-full btn-secondary font-bold py-3 px-4 rounded-lg transition-colors text-xl">Study Database</button>
             </div>
+        </div>
+    </div>
 
-            <div class="flex flex-col md:flex-row gap-4">
-                <button id="start-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-all text-lg shadow-lg">
-                    Start Challenge
-                </button>
-                <button id="study-btn" class="w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-6 rounded-lg transition-all text-lg shadow-lg">
-                    Study Database
-                </button>
+    <!-- Database View -->
+    <div id="database-view" class="w-full max-w-4xl mx-auto hidden">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-4xl md:text-5xl font-bold" style="color: #8C1C13;">Quinta Database</h1>
+            <button id="back-to-menu-btn" class="btn-secondary font-bold py-2 px-6 rounded-lg transition-colors text-lg">&larr; Back</button>
+        </div>
+        <div class="game-card rounded-lg p-6 md:p-8 max-h-[70vh] overflow-y-auto">
+             <div id="database-list" class="space-y-5">
+                <!-- DB items will be injected here -->
+             </div>
+        </div>
+    </div>
+
+    <!-- Game Container -->
+    <div id="game-container" class="w-full max-w-4xl mx-auto hidden">
+        <div class="text-center mb-6">
+            <h1 class="text-4xl md:text-5xl font-bold" style="color: #8C1C13;">Port Master</h1>
+            <p class="text-lg text-gray-600 mt-2">Quinta-Producer Challenge</p>
+        </div>
+
+        <!-- Score and Round Info -->
+        <div class="flex justify-between items-center mb-6 p-4 rounded-lg bg-red-800/10 game-card" style="color: #8C1C13;">
+            <div class="text-center">
+                <h3 class="text-xl font-bold">Round</h3>
+                <p id="round-info" class="text-2xl font-semibold">1 / 10</p>
+            </div>
+            <div class="text-center">
+                <h3 class="text-xl font-bold">Score</h3>
+                <p id="score-info" class="text-2xl font-semibold">0</p>
             </div>
         </div>
 
-        <!-- ===== Database View ===== -->
-        <div id="view-database" class="view">
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-3xl font-bold text-white">Quinta Database</h1>
-                <button class="back-menu-btn bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded-lg transition-all shadow">
-                    &larr; Back
-                </button>
-            </div>
-            <div id="database-list" class="max-h-96 overflow-y-auto space-y-4 pr-2">
-                <!-- Database content will be injected here -->
-            </div>
-        </div>
-
-        <!-- ===== Game View ===== -->
-        <div id="view-game" class="view">
-            <div class="flex justify-between items-center mb-6">
-                <div>
-                    <span class="text-lg font-semibold text-blue-300">Score: <span id="score-display">0</span></span>
-                </div>
-                <div>
-                    <span class="text-lg font-semibold text-gray-400">Question: <span id="question-counter">1 / 10</span></span>
-                </div>
-            </div>
-
-            <div class="text-center bg-gray-700 p-8 rounded-lg mb-8 shadow-inner">
-                <p class="text-lg text-gray-300 mb-2">Which producer makes...</p>
-                <h2 id="quinta-prompt" class="text-3xl font-bold text-white">Quinta Name Here</h2>
+        <!-- Main Game Area -->
+        <div class="game-card rounded-lg p-6 md:p-8">
+            <div class="text-center mb-6">
+                <p class="text-lg mb-2">Match the Quinta:</p>
+                <h2 id="quinta-prompt" class="text-3xl md:text-4xl font-bold">Quinta Name Here</h2>
             </div>
 
             <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Option buttons will be injected here -->
+                <!-- Producer buttons will be inserted here -->
             </div>
-            
-            <div id="feedback-message" class="text-center mt-6 h-6 text-lg font-semibold">
+
+            <div id="feedback-message" class="text-center mt-6 h-6 text-xl font-semibold">
                 <!-- Feedback like "Correct!" or "Try again!" -->
             </div>
         </div>
-
-        <!-- ===== Score View ===== -->
-        <div id="view-score" class="view text-center">
-            <h1 class="text-4xl font-bold text-white mb-4">Challenge Complete!</h1>
-            
-            <div class="bg-gray-700 p-8 rounded-lg mb-8 shadow-inner">
-                <p class="text-xl text-gray-300 mb-2">Your Final Score</p>
-                <h2 id="final-score-display" class="text-6xl font-bold text-white mb-4">18 / 20</h2>
-                <p id="final-feedback-message" class="text-2xl font-semibold text-yellow-300">Excellent work!</p>
+    </div>
+    
+    <!-- Game Over Modal -->
+    <div id="game-over-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center transform transition-all scale-95 opacity-0">
+            <h2 class="text-4xl font-bold mb-4" style="color: #8C1C13;">Challenge Complete!</h2>
+            <p id="final-score-message" class...="text-3xl font-bold mb-4" style="color: #8C1C13;"></p>
+            <div class="bg-red-800/10 p-4 rounded-lg mb-6">
+                <p class="text-lg text-left clear-both">Final Score: <span id="final-score" class="font-bold float-right">0</span></p>
+                <p class="text-lg text-left mt-1 clear-both">Percentage: <span id="final-percentage" class="font-bold float-right">0%</span></p>
             </div>
-
-            <div class="flex flex-col md:flex-row gap-4">
-                <button id="play-again-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-all text-lg shadow-lg">
-                    Play Again
-                </button>
-                <button class="back-menu-btn w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-6 rounded-lg transition-all text-lg shadow-lg">
-                    Main Menu
-                </button>
-            </div>
+            <button id="play-again-btn" class="w-full btn-primary font-bold py-3 px-4 rounded-lg transition-colors">Play Again</button>
         </div>
-
     </div>
 
     <script>
         // --- DATA ---
-        // Using the cleaned-up data from your first text prompt for clarity
         const DB_DATA = [
             { "Producer": "BURMESTER, est. 1730", "Quinta": "Quinta do Nova de Nossa Senhora do Carmo", "Notes": "(Sogevinus)\n(Cima Corgo)\nPurchased by Burmester in 1991 from Royal Oporto/Real Companhia Velha. SQVP was made as a separate label.\nAlso produces Quinta do Arnozelo (see Calem), which is a quinta under their parent company, Sogevinus." },
             { "Producer": "CALEM, est 1859", "Quinta": "Quinta da Foz", "Notes": "(Sogevinus)\n(Cima Corgo)\nOwned by Calem since 1885. SQVP first produced from the quinta in 1982." },
@@ -179,7 +200,7 @@
             { "Producer": "WIESE & KROHN, est. 1865", "Quinta": "Quinta do Retiro Novo", "Notes": "(Fladgate)\n(Cima Corgo)\nAcquired by Taylor-Fladgate in June 2013." }
         ];
 
-        // --- PRE-PROCESS DATA FOR GAME ---
+        // --- PRE-PROCESS DATA ---
         const cleanProducer = (name) => name.split(',')[0].trim();
         const cleanQuinta = (name) => name.split('(')[0].trim();
 
@@ -190,64 +211,44 @@
 
         const ALL_PRODUCERS = [...new Set(GAME_DATA.map(item => item.producer))];
 
+        const TOTAL_ROUNDS = 10;
+        const MAX_SCORE = TOTAL_ROUNDS * 2; // +2 for first try
+
         // --- GAME STATE ---
         let score = 0;
-        let currentQuestionIndex = 0;
+        let currentRound = 1;
         let gameQuestions = [];
         let firstTry = true;
         let blockGuess = false;
 
         // --- DOM ELEMENTS ---
-        const views = {
-            menu: document.getElementById('view-menu'),
-            database: document.getElementById('view-database'),
-            game: document.getElementById('view-game'),
-            score: document.getElementById('view-score')
-        };
-        const scoreDisplay = document.getElementById('score-display');
-        const questionCounter = document.getElementById('question-counter');
+        const startModal = document.getElementById('start-modal');
+        const databaseView = document.getElementById('database-view');
+        const gameContainer = document.getElementById('game-container');
+        const gameOverModal = document.getElementById('game-over-modal');
+        
+        const startGameBtn = document.getElementById('start-game-btn');
+        const studyDbBtn = document.getElementById('study-db-btn');
+        const backToMenuBtn = document.getElementById('back-to-menu-btn');
+        const playAgainBtn = document.getElementById('play-again-btn');
+
+        const databaseList = document.getElementById('database-list');
+        const scoreInfo = document.getElementById('score-info');
+        const roundInfo = document.getElementById('round-info');
         const quintaPrompt = document.getElementById('quinta-prompt');
         const optionsContainer = document.getElementById('options-container');
         const feedbackMessage = document.getElementById('feedback-message');
-        const finalScoreDisplay = document.getElementById('final-score-display');
-        const finalFeedbackMessage = document.getElementById('final-feedback-message');
+        
+        const finalScore = document.getElementById('final-score');
+        const finalPercentage = document.getElementById('final-percentage');
+        const finalScoreMessage = document.getElementById('final-score-message');
 
-        // --- NAVIGATION ---
-        function showView(viewId) {
-            Object.values(views).forEach(view => view.style.display = 'none');
-            views[viewId].style.display = 'block';
-        }
+        // --- FUNCTIONS ---
 
-        document.getElementById('start-btn').addEventListener('click', startGame);
-        document.getElementById('study-btn').addEventListener('click', showDatabase);
-        document.getElementById('play-again-btn').addEventListener('click', startGame);
-        document.querySelectorAll('.back-menu-btn').forEach(btn => {
-            btn.addEventListener('click', () => showView('menu'));
-        });
-
-        // --- DATABASE VIEW ---
-        function showDatabase() {
-            const listContainer = document.getElementById('database-list');
-            listContainer.innerHTML = ''; // Clear old list
-
-            DB_DATA.forEach(item => {
-                const itemEl = document.createElement('div');
-                itemEl.className = 'bg-gray-700 p-4 rounded-lg shadow';
-                
-                // Format notes to preserve line breaks
-                const formattedNotes = item.Notes.replace(/\n/g, '<br>');
-
-                itemEl.innerHTML = `
-                    <h3 class="text-lg font-bold text-blue-300">${item.Producer}</h3>
-                    <p class="text-md font-semibold text-white mt-1">${item.Quinta}</p>
-                    <p class="text-sm text-gray-400 mt-2">${formattedNotes}</p>
-                `;
-                listContainer.appendChild(itemEl);
-            });
-            showView('database');
-        }
-
-        // --- GAME LOGIC ---
+        /**
+         * Shuffles an array in place.
+         * @param {Array} array The array to shuffle.
+         */
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -256,33 +257,44 @@
             return array;
         }
 
-        function startGame() {
+        /**
+         * Initializes the game or starts a new one.
+         */
+        function initGame() {
             score = 0;
-            currentQuestionIndex = 0;
-            // Generate 10 random, unique questions
-            gameQuestions = shuffleArray([...GAME_DATA]).slice(0, 10);
-            loadQuestion();
-            showView('game');
+            currentRound = 1;
+            gameQuestions = shuffleArray([...GAME_DATA]).slice(0, TOTAL_ROUNDS);
+            
+            startRound();
         }
-
-        function loadQuestion() {
-            if (currentQuestionIndex >= 10) {
-                showScore();
+        
+        /**
+         * Starts a new round.
+         */
+        function startRound() {
+            if (currentRound > TOTAL_ROUNDS) {
+                showGameOver();
                 return;
             }
 
-            blockGuess = false;
+            // Reset round state
             firstTry = true;
+            blockGuess = false;
             feedbackMessage.textContent = '';
             
-            const currentQuestion = gameQuestions[currentQuestionIndex];
-            
-            // Update UI
-            scoreDisplay.textContent = score;
-            questionCounter.textContent = `${currentQuestionIndex + 1} / 10`;
-            quintaPrompt.textContent = currentQuestion.quinta;
+            const currentQuestion = gameQuestions[currentRound - 1];
 
-            // Generate options
+            quintaPrompt.textContent = currentQuestion.quinta;
+            updateScoreboard();
+            renderButtons(currentQuestion);
+        }
+
+        /**
+         * Renders the choice buttons for producers.
+         */
+        function renderButtons(currentQuestion) {
+            optionsContainer.innerHTML = '';
+            
             const correctProducer = currentQuestion.producer;
             let options = [correctProducer];
             
@@ -291,16 +303,18 @@
             options.push(...wrongProducers.slice(0, 3));
 
             // Shuffle and display options
-            optionsContainer.innerHTML = '';
             shuffleArray(options).forEach(producer => {
                 const button = document.createElement('button');
                 button.textContent = producer;
-                button.className = 'btn-option w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold py-4 px-5 rounded-lg transition-all shadow-md text-left';
-                button.addEventListener('click', () => handleGuess(button, correctProducer));
+                button.classList.add('btn-choice', 'w-full', 'text-left', 'p-4', 'rounded-lg', 'font-semibold');
+                button.onclick = () => handleGuess(button, correctProducer);
                 optionsContainer.appendChild(button);
             });
         }
-
+        
+        /**
+         * Handles the player's selection of a producer.
+         */
         function handleGuess(button, correctProducer) {
             if (blockGuess) return; // Prevent multiple clicks
 
@@ -311,7 +325,7 @@
                 blockGuess = true;
                 button.classList.add('correct');
                 feedbackMessage.textContent = 'Correct!';
-                feedbackMessage.className = 'text-center mt-6 h-6 text-lg font-semibold text-green-400';
+                feedbackMessage.style.color = '#065F46'; // Green
 
                 if (firstTry) {
                     score += 2;
@@ -320,45 +334,132 @@
                 }
                 
                 // Disable all buttons
-                optionsContainer.querySelectorAll('.btn-option').forEach(btn => btn.disabled = true);
+                Array.from(optionsContainer.children).forEach(btn => {
+                    btn.disabled = true;
+                    if (!btn.classList.contains('correct')) {
+                        btn.style.opacity = '0.6';
+                    }
+                });
 
-                currentQuestionIndex++;
-                scoreDisplay.textContent = score;
-                setTimeout(loadQuestion, 1500); // Wait 1.5s before next question
+                updateScoreboard();
+                
+                setTimeout(() => {
+                    currentRound++;
+                    startRound();
+                }, 1500); // Wait 1.5s before next question
+
             } else {
                 // --- INCORRECT GUESS ---
                 button.classList.add('incorrect');
                 button.disabled = true; // Disable this wrong option
                 feedbackMessage.textContent = 'Try again!';
-                feedbackMessage.className = 'text-center mt-6 h-6 text-lg font-semibold text-red-400';
+                feedbackMessage.style.color = '#DC2626'; // Red
                 
-                score -= 1;
+                score = Math.max(0, score - 1);
                 firstTry = false;
-                scoreDisplay.textContent = score;
+                updateScoreboard();
+
+                // Remove shake class
+                setTimeout(() => {
+                    button.classList.remove('incorrect');
+                }, 500);
             }
         }
 
-        function showScore() {
-            showView('score');
-            const maxScore = 20;
-            const percentage = (score / maxScore) * 100;
+        /**
+         * Updates the score and round display.
+         */
+        function updateScoreboard() {
+            scoreInfo.textContent = score;
+            roundInfo.textContent = `${Math.min(currentRound, TOTAL_ROUNDS)} / ${TOTAL_ROUNDS}`;
+        }
+
+        /**
+         * Populates and shows the database view.
+         */
+        function showDatabase() {
+            databaseList.innerHTML = ''; // Clear old list
+
+            DB_DATA.forEach(item => {
+                const itemEl = document.createElement('div');
+                itemEl.className = 'border-b border-gray-200 pb-4';
+                
+                // Format notes to preserve line breaks
+                const formattedNotes = item.Notes.replace(/\n/g, '<br>');
+
+                itemEl.innerHTML = `
+                    <h3 class="text-xl font-bold" style="color: #8C1C13;">${item.Producer}</h3>
+                    <p class="text-lg font-semibold text-gray-800 mt-1">${item.Quinta}</p>
+                    <p class="text-base text-gray-600 mt-2">${formattedNotes}</p>
+                `;
+                databaseList.appendChild(itemEl);
+            });
             
-            finalScoreDisplay.textContent = `${score} / ${maxScore}`;
-
-            if (percentage >= 90) {
-                finalFeedbackMessage.textContent = "Excellent! You're a Port expert!";
-                finalFeedbackMessage.className = "text-2xl font-semibold text-green-400";
-            } else if (percentage >= 70) {
-                finalFeedbackMessage.textContent = "Great job! Very impressive knowledge.";
-                finalFeedbackMessage.className = "text-2xl font-semibold text-blue-300";
-            } else if (percentage >= 50) {
-                finalFeedbackMessage.textContent = "Good effort! You're on your way.";
-                finalFeedbackMessage.className = "text-2xl font-semibold text-yellow-300";
-            } else {
-                finalFeedbackMessage.textContent = "Keep studying! The database is waiting.";
-                finalFeedbackMessage.className = "text-2xl font-semibold text-red-400";
-            }
+            startModal.classList.add('hidden');
+            databaseView.classList.remove('hidden');
         }
+
+        /**
+         * Hides the database and shows the start modal.
+         */
+        function hideDatabase() {
+            databaseView.classList.add('hidden');
+            startModal.classList.remove('hidden');
+        }
+
+        /**
+         * Shows the game over screen with a final score, percentage, and message.
+         */
+        function showGameOver() {
+            // Calculate percentage, ensuring it's not below 0.
+            const percentage = Math.round(Math.max(0, (score / MAX_SCORE) * 100));
+
+            let message = '';
+            if (percentage === 100) {
+                message = "Perfect Score!";
+            } else if (percentage >= 90) {
+                message = "You're a Port Master!";
+            } else if (percentage >= 75) {
+                message = "Excellent Work!";
+            } else if (percentage >= 50) {
+                message = "Good job!";
+            } else {
+                message = "Keep studying!";
+            }
+
+            finalScore.textContent = score;
+            finalPercentage.textContent = `${percentage}%`;
+            finalScoreMessage.textContent = message;
+            
+            gameContainer.classList.add('hidden');
+            gameOverModal.classList.remove('hidden');
+            setTimeout(() => {
+                gameOverModal.firstElementChild.classList.remove('scale-95', 'opacity-0');
+            }, 10);
+        }
+
+        /**
+         * Hides the game over screen and starts a new game.
+         */
+        function hideGameOver() {
+            gameOverModal.firstElementChild.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                gameOverModal.classList.add('hidden');
+                initGame();
+                gameContainer.classList.remove('hidden'); // Show game
+            }, 200);
+        }
+
+        // --- EVENT LISTENERS ---
+        startGameBtn.addEventListener('click', () => {
+            startModal.classList.add('hidden');
+            gameContainer.classList.remove('hidden');
+            initGame();
+        });
+        
+        studyDbBtn.addEventListener('click', showDatabase);
+        backToMenuBtn.addEventListener('click', hideDatabase);
+        playAgainBtn.addEventListener('click', hideGameOver);
 
     </script>
 </body>
